@@ -2,10 +2,12 @@ import numpy as np
 from scipy.fftpack import fft,ifft
 from scipy import signal
 import matplotlib.pyplot as plt
-import seaborn
 
-def PLOT(x):
-    plt.plot(x)
+
+def PLOT(y,x=None):
+    if x is None:
+        x = np.arange(0,y.shape[0])
+    plt.plot(x,y)
     plt.show()
 
 def FFT(x):
@@ -14,20 +16,31 @@ def FFT(x):
     return xf
 
 # 原始信号
+# 采样频率
 fs = 1000
-x=np.linspace(0,1,fs)
-y=2*np.sin(2*np.pi*50*x)+5*np.sin(2*np.pi*100*x)
-PLOT(y)
+# 采样点0~2s
+t=np.linspace(0,2,2*fs)
+# f1=50hz 谐波和 f2=100hz 谐波
+f1 = 50
+f2 = 100
+# theta = wt = 2πft = 2πfn/fs
+theta1 = 2*np.pi*f1*t
+theta2 = 2*np.pi*f2*t
+# 谐波叠加
+y=2*np.sin(theta1)+5*np.sin(theta2)
+PLOT(y,t)
 
-# 频域
+# 傅里叶变换
+# 频率坐标
+f = fs*np.arange(0,int(y.shape[0]/2))/y.shape[0]
 yf = FFT(y)
-PLOT(yf)
+PLOT(yf,f)
 
 # 低通滤波
 fc = 70
 wn = 2*fc/fs
 b, a = signal.butter(8, wn, 'lowpass')
 y2 = signal.filtfilt(b, a, y)
-PLOT(y2)
+PLOT(y2,t)
 yf2 = FFT(y2)
-PLOT(yf2)
+PLOT(yf2,f)
